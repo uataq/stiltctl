@@ -81,7 +81,7 @@ def minimize_meteorology():
 
     with uow:
         event = uow.events.dequeue(events.SceneCreated)
-        with timeout(1800):
+        with timeout(3600):
             services.minimize_meteorology(uow, domain_config=event.domain_config)
 
 
@@ -97,7 +97,7 @@ def generate_simulations():
     uow = unit_of_work_factory(config_from_env)
     with uow:
         event = uow.events.dequeue(events.MeteorologyMinimized)
-        with timeout(1800):
+        with timeout(30):
             services.generate_simulations(uow, domain_config=event.domain_config)
 
 
@@ -124,7 +124,7 @@ def execute_simulations(
                     time.sleep(10)
                     continue
 
-            with timeout(1800):
+            with timeout(300):
                 services.execute_simulation(uow, simulation_manifest=event.manifest)
 
 
