@@ -1,0 +1,15 @@
+# image is the docker image to be deployed.
+image: stiltctl
+# imageTag is the image tag to use for workflows to ensure version consistency
+# among workflow steps.
+imageTag: not-set
+
+# environment tag used to determine the path to multi-environment resources, such as
+# storage buckets. Must be: dev, prod.
+environment: dev
+# project is the name of the project used to prefix several resources, such as storage
+# buckets.
+project: example-project
+
+simulationExecutor:
+  replicas: 50

@@ -1,0 +1,35 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: simulation-generator
+spec:
+  jobTargetRef:
+    activeDeadlineSeconds: 120
+    backoffLimit: 1
+    template:
+      spec:
+        containers:
+          - name: main
+            image: '{{ .Values.image }}:{{ .Values.imageTag }}'
+            command: ['stiltctl', 'generate-simulations']
+            envFrom:
+              - configMapRef:
+                  name: environment
+              - secretRef:
+                  name: db-secret
+            resources:
+              requests:
+                cpu: 100m
+                memory: 100Mi
+              limits:
+                cpu: 1000m
+                memory: 500Mi
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 10
+  maxReplicaCount: 5
+  triggers:
+    - type: postgresql
+      metadata:
+        connectionFromEnv: POSTGRES_CONNECTION
+        query: "SELECT COUNT(*) FROM events WHERE event_name = 'stiltctl.events.MeteorologyMinimized'"
+        targetQueryValue: '1'

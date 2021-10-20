@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simulation-executor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simulation-executor
+  template:
+    metadata:
+      labels:
+        app: simulation-executor
+    spec:
+      containers:
+        - name: main
+          image: '{{ .Values.image }}:{{ .Values.imageTag }}'
+          command: ['stiltctl', 'execute-simulations']
+          envFrom:
+            - configMapRef:
+                name: environment
+            - secretRef:
+                name: db-secret
+          resources:
+            requests:
+              cpu: 700m
+              memory: 400Mi
+            limits:
+              cpu: 1000m
+              memory: 800Mi
+      nodeSelector:
+        cloud.google.com/gke-preemptible: 'true'
+      tolerations:
+        - key: cloud.google.com/gke-spot
+          operator: Equal
+          value: 'true'
+          effect: NoSchedule
+        - key: cloud.google.com/gke-preemptible
+          operator: Equal
+          value: 'true'
+          effect: NoSchedule
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: simulation-executor-scaler
+spec:
+  scaleTargetRef:
+    name: simulation-executor
+  maxReplicaCount: {{ .Values.simulationExecutor.replicas }}
+  triggers:
+    - type: postgresql
+      metadata:
+        connectionFromEnv: POSTGRES_CONNECTION
+        query: "SELECT COUNT(*) FROM events WHERE event_name = 'stiltctl.events.SimulationCreated'"
+        targetQueryValue: '1'

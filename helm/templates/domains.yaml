@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: domains
+# Each domain should be configured as a <domain_name>.yaml key containing the desired
+# DomainConfig values. The indentation is important.
+data:
+  salt_lake_city.yaml: |
+    receptor_grid:
+      xmin: -112.1
+      xmax: -111.75
+      xres: 0.01
+      ymin: 40.4
+      ymax: 40.9
+      yres: 0.01
+    simulation_config:
+      n_hours: -4
+      numpar: 200
+      xmn: -112.5
+      xmx: -111.5
+      xres: 0.002
+      ymn: 40.1
+      ymx: 41.2
+      yres: 0.002
+    meteorology_model: hrrr
+    time: '2019-06-05T12:15:00Z'

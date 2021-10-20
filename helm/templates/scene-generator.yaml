@@ -1,0 +1,40 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: scene-generator
+spec:
+  schedule: '0 * * * *'
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 300
+  suspend: true
+
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: main
+              image: '{{ .Values.image }}:{{ .Values.imageTag }}'
+              command: ['stiltctl', 'generate-scenes', '/etc/stiltctl']
+              envFrom:
+                - configMapRef:
+                    name: environment
+                - secretRef:
+                    name: db-secret
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 100Mi
+                limits:
+                  cpu: 1000m
+                  memory: 500Mi
+              volumeMounts:
+                - name: domains-volume
+                  mountPath: /etc/stiltctl/
+          volumes:
+            - name: domains-volume
+              configMap:
+                name: domains
