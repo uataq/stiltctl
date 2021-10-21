@@ -63,8 +63,11 @@ def minimize_meteorology(uow: UnitOfWork, domain_config: DomainConfig):
         input_path = Path("/tmp") / meteorology_basename
 
         logger.debug(f"Downloading: {str(meteorology_filename)}")
-        blob = meteorology_source_bucket.get_blob(str(meteorology_filename))
-        blob.download(input_path)
+        try:
+            blob = meteorology_source_bucket.get_blob(str(meteorology_filename))
+            blob.download(input_path)
+        except NotFoundError as e:
+            raise MeteorologyNotFound(str(e))
         input_paths.append(input_path)
         logger.info(f"Download successful: {str(meteorology_filename)}")
 
