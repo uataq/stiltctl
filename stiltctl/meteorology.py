@@ -96,7 +96,6 @@ class HrrrForecastSource(AbstractMeteorologySource):
 
     # https://console.cloud.google.com/storage/browser/high-resolution-rapid-refresh/noaa_arl_formatted/forecast
     # gs://high-resolution-rapid-refresh/noaa_arl_formatted/forecast/20211007/hysplit.t15z.hrrrf
-
     artifact_bucket = "high-resolution-rapid-refresh"
     artifact_prefix = "noaa_arl_formatted/forecast"
     extent = GridExtent(xmin=-122.71902, xmax=-60.9162, ymin=12.1381, ymax=47.8419)
@@ -104,7 +103,12 @@ class HrrrForecastSource(AbstractMeteorologySource):
     strptime_format = "%Y%m%d/hysplit.t%Hz.hrrrf"  # 20210625/hysplit.t13z.hrrrf
 
     def get_filename_by_time(self, time: datetime) -> Path:
+        # Use forecast hour 1 (zero based) to choose meteorology using an older
+        # source file. Since it takes time for Google to sync the FTP archive to
+        # GCS, this gives an extra hour to be sure the GCS mirror is up to date.
+        forecast_hour = 1
         time_first = time.replace(hour=time.hour, minute=0, second=0, microsecond=0)
+        time_first -= timedelta(hours=forecast_hour)
         filename = time_first.strftime(self.strptime_format)
         return Path(self.artifact_prefix) / filename
 
