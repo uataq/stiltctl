@@ -47,7 +47,7 @@ class UnitOfWork:
     def __exit__(self, exception_type: Type, exception_value: Exception, traceback):
         if exception_type is None:
             self.session.commit()
-        elif exception_type is StiltException:
+        elif isinstance(exception_value, StiltException):
             self.session.commit()
             logger.exception(exception_value)
         else:
