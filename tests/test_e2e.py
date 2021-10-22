@@ -52,7 +52,7 @@ def test_e2e(uow: UnitOfWork):
     result = runner.invoke(app, ["minimize-meteorology"])
     assert result.exit_code == 0, result.stdout
     assert Path("/tmp/meteorology.arl").exists()
-    assert Path("/tmp/meteorology.arl").stat().st_size == 1415560
+    assert Path("/tmp/meteorology.arl").stat().st_size == 1865610
     with uow:
         count = uow.session.execute(text("select count(*) from events")).scalar_one()
         assert count == 1

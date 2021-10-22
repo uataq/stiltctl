@@ -68,7 +68,7 @@ class DomainConfig(BaseModel):
         spatial_extent = self.simulation_config.footprint_extent
         footprint_extent = GridTimeExtent(tmin=tmin, tmax=tmax, **spatial_extent.dict())
         meteorology_extent = footprint_extent.expand(
-            dx=0.1, dy=0.1, dt=timedelta(hours=1)
+            dx=0.25, dy=0.25, dt=timedelta(hours=1)
         )
         meteorology_extent.tmin = floor_time_to_hour(meteorology_extent.tmin)
         meteorology_extent.tmax = floor_time_to_hour(
